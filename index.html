@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>総力bilibili検索</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        select, button, label, input {
+            font-size: 16px;
+            padding: 10px;
+            margin: 10px;
+        }
+    </style>
+    <script>
+        const bossCategories = {
+            "ビナー": {
+                "大蛇": "大蛇",
+                "比纳": "比纳",
+                "薇娜": "薇娜"
+            },
+            "ケセド": {
+                "球": "球",
+                "赫賽德": "赫賽德",
+                "切赛德": "切赛德"
+            },
+            "ホド": {
+                "霍德": "霍德"
+            },
+            "ホバークラフト": {
+                "若藻": "若藻",
+                "氣墊船": "氣墊船",
+                "灾厄之狐": "灾厄之狐"
+            },
+            "シロクロ": {
+                "黑白": "黑白",
+                "白＆黑": "白＆黑"
+            },
+            "ペロロジラ": {
+                "鸡手": "鸡手",
+                "佩洛洛吉拉": "佩洛洛吉拉",
+                "佩洛洛斯拉": "佩洛洛斯拉"
+            },
+            "ゴズ": {
+                "高茲": "高茲",
+                "格兹": "格兹"
+            },
+            "ヒエロニムス": {
+                "主教": "主教",
+                "耶羅尼姆斯": "耶羅尼姆斯",
+                "希罗尼穆斯": "希罗尼穆斯"
+            },
+            "KAITEN FX Mk.0": {
+                "寿司": "寿司",
+                "KAITEN FX Mk.0": "KAITEN FX Mk.0",
+                "回転 FX Mk.0": "回転 FX Mk.0"
+            },
+            "グレゴリオ": {
+                "格里高利": "格里高利",
+                "葛利果": "葛利果",
+                "额我略": "额我略"
+            },
+            "クロカゲ": {
+                "猫鬼": "猫鬼",
+                "黑影": "黑影"
+            },
+            "ゲプラ": {
+                "盖布拉": "盖布拉"
+            }
+        };
+
+        function updateBossOptions() {
+            const categorySelect = document.getElementById("categorySelect");
+            const bossSelect = document.getElementById("bossSelect");
+            const selectedCategory = categorySelect.value;
+
+            bossSelect.innerHTML = ""; // Clear existing options
+
+            if (bossCategories[selectedCategory]) {
+                for (const boss in bossCategories[selectedCategory]) {
+                    const option = document.createElement("option");
+                    option.value = boss;
+                    option.textContent = boss; // Keep the Chinese names as they are
+                    bossSelect.appendChild(option);
+                }
+            }
+        }
+
+        function toggleDateSelection() {
+            const dateSelection = document.getElementById("dateSelection");
+            dateSelection.classList.toggle("hidden", !document.getElementById("enableDateFilter").checked);
+        }
+
+        function generateSearchUrl() {
+            const categorySelect = document.getElementById("categorySelect");
+            const bossSelect = document.getElementById("bossSelect");
+            const includeGameTitle1 = document.getElementById("includeGameTitle1").checked;
+            const includeGameTitle2 = document.getElementById("includeGameTitle2").checked;
+            const includeGameTitle3 = document.getElementById("includeGameTitle3").checked;
+            const includeTotalWar = document.getElementById("includeTotalWar").checked;
+            const includeGreatBattle = document.getElementById("includeGreatBattle").checked;
+
+            const selectedBoss = bossSelect.value;
+            const selectedCategory = categorySelect.value;
+            let chineseName = bossCategories[selectedCategory][selectedBoss];
+
+            let prefix = [];
+            if (includeGameTitle1) {
+                prefix.push("碧蓝档案");
+            }
+            if (includeGameTitle2) {
+                prefix.push("蔚蓝档案");
+            }
+            if (includeGameTitle3) {
+                prefix.push("日服");
+            }
+            if (includeTotalWar) {
+                prefix.push("总力战");
+            }
+            if (includeGreatBattle) {
+                prefix.push("大决战");
+            }
+
+            if (prefix.length > 0) {
+                chineseName = `${prefix.join(" ")} ${chineseName}`;
+            }
+
+            let searchUrl = `https://search.bilibili.com/all?keyword=${encodeURIComponent(chineseName)}&order=pubdate`;
+
+            const includeDateFilter = document.getElementById("enableDateFilter").checked;
+            if (includeDateFilter) {
+                const startDate = document.getElementById("startDate").value;
+                const endDate = document.getElementById("endDate").value;
+
+                if (startDate) {
+                    const startTimestamp = new Date(startDate).getTime() / 1000;
+                    searchUrl += `&pubtime_begin_s=${startTimestamp}`;
+                }
+
+                if (endDate) {
+                    const endTimestamp = new Date(endDate).getTime() / 1000;
+                    searchUrl += `&pubtime_end_s=${endTimestamp}`;
+                }
+            }
+
+            document.getElementById("result").innerHTML = `<a href="${searchUrl}" target="_blank">${selectedBoss}の動画URL</a>`;
+        }
+    </script>
+</head>
+<body>
+    <h1>総力bilibili検索 1.2</h1>
+    <p>@nodocchihakase スマホからだとurl先が人気の動画順になってるので、投稿順にしたい場合は手動で選んでください。またスマホからだと投稿時間のソート機能も使えません。</p>
+    <label for="categorySelect">ボス選択:</label>
+    <select id="categorySelect" onchange="updateBossOptions()">
+        <option value="ビナー">ビナー</option>
+        <option value="ケセド">ケセド</option>
+        <option value="ホド">ホド</option>
+        <option value="ホバークラフト">ホバークラフト</option>
+        <option value="シロクロ">シロクロ</option>
+        <option value="ペロロジラ">ペロロジラ</option>
+        <option value="ゴズ">ゴズ</option>
+        <option value="ヒエロニムス">ヒエロニムス</option>
+        <option value="KAITEN FX Mk.0">KAITEN FX Mk.0</option>
+        <option value="グレゴリオ">グレゴリオ</option>
+        <option value="クロカゲ">クロカゲ</option>
+        <option value="ゲプラ">ゲプラ</option>
+    </select>
+    <br>
+    <label for="bossSelect">ボス表記:</label>
+    <select id="bossSelect"></select>
+    <label>
+        <input type="checkbox" id="enableDateFilter" onchange="toggleDateSelection()">
+        投稿時間でソートする
+    </label>
+    <div id="dateSelection" class="hidden">
+        <label for="startDate">開始日:</label>
+        <input type="date" id="startDate">
+        <label for="endDate">終了日:</label>
+        <input type="date" id="endDate">
+    </div>
+    <br>
+    <input type="checkbox" id="includeGameTitle1">
+    <label for="includeGameTitle1">ブルーアーカイブ (非公式？名称)"碧蓝档案" を検索に入れる</label>
+    <br>
+    <input type="checkbox" id="includeGameTitle2">
+    <label for="includeGameTitle2">ブルーアーカイブ "蔚蓝档案" を検索に入れる</label>
+    <br>
+    <input type="checkbox" id="includeGameTitle3">
+    <label for="includeGameTitle3">日本版 "日服" を検索に入れる(検索結果がだいぶ減るのでおすすめしません)</label>
+    <br>
+    <input type="checkbox" id="includeTotalWar">
+    <label for="includeTotalWar">総力戦 "总力战"を検索に入れる</label>
+    <br>
+    <input type="checkbox" id="includeGreatBattle">
+    <label for="includeGreatBattle">大決戦 "大决战"を検索に入れる</label>
+    <br>
+    <p>調べると自動で最新順に並んでます。再生回数順とかにしたいなら自分で変えてください</p>
+    <p>ボス表記のプルダウンのやつは一番上のやつが基本的によく使われてるワードです(大体非公式名称)</p>
+    <p>チェックボックスにチェックを入れるほど、出てくる動画も絞られるのであんまり入れない方がいいと思います</p>
+    <p>投稿時間の指定する日付は恐らく日本時間より-9時間された日付です。特定の期間に絞る場合は日付に余裕を持たせほうがいいです</p>
+    <button onclick="generateSearchUrl()">URL作成</button>
+    <div id="result" style="margin-top: 20px;"></div>
+    <p>地形の表記は人によってバラバラなのでよくわからんです。一例 市街地/街区/市街 屋外/野外/室外 屋内/室内 </p>
+    <p>1単語に略されてることもよくあります。使うなら適当にコピペしてください</p>
+    <p>bilibiliの利用規約で禁止されている事項として 4.2.11 Bilibiliの事前の書面による明示的な許可なく、いかなる方法(ロボットソフトウェア、スパイダーソフトウェア、クローラーソフトウェアなどの自動プログラム、スクリプト、ソフトウェアを含むがこれらに限定されない)およびいかなる理由においても、自らまたは他者がプラットフォームのサービス、コンテンツ、およびデータを取得すること。(google翻訳)　と規定されていますが、スクレイピングとかを前提としたやつで特に規約に反してないはずです...(情報は取得してないわけだし)</p>
+    <p>規約 https://game.bilibili.com/licence/h5/</p>
+    <script>
+        updateBossOptions(); 
+    </script>
+</body>
+</html>
