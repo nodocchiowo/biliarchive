@@ -149,10 +149,47 @@
 
             document.getElementById("result").innerHTML = `<a href="${searchUrl}" target="_blank">${selectedBoss}の動画URL</a>`;
         }
+        document.addEventListener("DOMContentLoaded", function () {
+    const categorySelect = document.getElementById("categorySelect");
+    const bossSelect = document.getElementById("bossSelect");
+    const checkboxes = document.querySelectorAll("input[type='checkbox']");
+
+    // プルダウンの状態を保存・復元
+    const savedCategory = localStorage.getItem("selectedCategory");
+    if (savedCategory) {
+        categorySelect.value = savedCategory;
+        updateBossOptions(); // ボス選択肢を更新
+    }
+
+    const savedBoss = localStorage.getItem("selectedBoss");
+    if (savedBoss) {
+        bossSelect.value = savedBoss;
+    }
+
+    categorySelect.addEventListener("change", function () {
+        localStorage.setItem("selectedCategory", categorySelect.value);
+    });
+
+    bossSelect.addEventListener("change", function () {
+        localStorage.setItem("selectedBoss", bossSelect.value);
+    });
+
+    // チェックボックスの状態を保存・復元
+    checkboxes.forEach(checkbox => {
+        const savedState = localStorage.getItem(checkbox.id);
+        if (savedState === "true") {
+            checkbox.checked = true;
+        }
+
+        checkbox.addEventListener("change", function () {
+            localStorage.setItem(checkbox.id, checkbox.checked);
+        });
+    });
+});
     </script>
 </head>
 <body>
-    <h1>総力bilibili検索 1.2</h1>
+    <h1>総力bilibili検索 1.3</h1>
     <p>@nodocchihakase スマホからだとurl先が人気の動画順になってるので、投稿順にしたい場合は手動で選んでください。またスマホからだと投稿時間のソート機能も使えません。</p>
     <label for="categorySelect">ボス選択:</label>
     <select id="categorySelect" onchange="updateBossOptions()">
